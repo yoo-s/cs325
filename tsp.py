@@ -14,9 +14,13 @@ insertion causes the minimum increase in total tour length.
 
 import sys
 
-
 # Farthest insertion tour construction algorithm
-def farthest_insertion (graph):
+def farthest_insertion (graph):	
+	# Step 1. Start with a sub-graph consisting of node i only.
+	# Step 2. Find node r such that cir is maximal and form sub-tour i-r-i.
+	# Step 3. (Selection step) Given a sub-tour, find node r not in the sub-tour farthest from any node in the sub-tour; i.e. with maximal crj
+	# Step 4. (Insertion step) Find the arc (i, j) in the sub-tour which minimizes cir + crj - cij . Insert r between i and j.
+	# Step 5. If all the nodes are added to the tour, stop. Else go to step 3
 	return graph
 
 # 2-OPT tour improvement algorithm
