@@ -20,15 +20,15 @@ import sys
 def farthest_insertion (graph):
     # Step 1. Find two cities farthest from each other to create a starting subtour.
 
-    tour = []
+    # initialize an empty tour
+    tour = {}
+    # initialize max distance
     max_distance = 0
-    a_iter = 0; b_iter = 1
-    a = graph[a_iter]; b = graph[b_iter]
-    best_a = a; best_b = b
 
-    while there are cities left to be checked,
+    # while there are cities left to be checked,
     for i in range(0, len(graph)-1): # loop a
-        for j in range(1, len(graph)): # loop b
+        for j in range(i+1, len(graph)): # loop b
+            # pick next two cities in graph to check inter-city distance
             a = graph[i]; b = graph[j]
 
             # get distance between first city a and a second city b
@@ -40,15 +40,14 @@ def farthest_insertion (graph):
                 # update the cities with the maximum inter-city distance
                 farthest_pair = (a, b)
     # remove the two cities from the graph
-    graph.pop(a)
-    graph.pop(b)
+    graph.pop(a); graph.pop(b)
     # add the cities to the new subtour
-    tour.append(a)
-    tour.append(b)
+    tour.append(a); tour.append(b)
 
 
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
 
+    # reset max distance
     max_distance = 0
     new_city = 0
     # while there are cities left in graph,
