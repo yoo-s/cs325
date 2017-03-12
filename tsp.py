@@ -26,7 +26,7 @@ def farthest_insertion (graph):
     a = graph[a_iter]; b = graph[b_iter]
     best_a = a; best_b = b
 
-    # while there are cities left to be checked,
+    while there are cities left to be checked,
     for i in range(0, len(graph)-1): # loop a
         for j in range(1, len(graph)): # loop b
             a = graph[i]; b = graph[j]
@@ -71,9 +71,9 @@ def farthest_insertion (graph):
     return tour
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
-def two_opt (tour):
+def two_opt (graph):
     # Add 2-OPT code
-    return better_tour
+    return graph
 
 # TSP - Combine farthest insertion and 2-opt.
 def tsp (graph):
@@ -110,8 +110,8 @@ def validate (arg_list=[],*arg):
 # Main function
 def main ():
     graph = validate(sys.argv)
+    print graph
     # tsp(graph)
-    print tsp(file)
     return
 
 
