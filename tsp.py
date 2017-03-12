@@ -88,16 +88,33 @@ def file_to_dict (file):
         graph[node] = (int(x),int(y))
     return graph
 
-# Validates input file
-def validate (file):
+# Validates input file and calls file_to_dict() to return a valid
+def validate (arg_list=[],*arg):
     # Add validation code
-    return file
+    if len(arg_list) is 2:
+        arg = arg_list[1]
+        if arg.lower().endswith('.txt'):
+            try:
+                graph = file_to_dict(arg)
+            except:
+                print "Input file line format must be 'N X Y' for Node number, X-coordinate, and Y-coordinate."
+                exit()
+            return graph
+        else:
+            print "Accepts .txt files exclusively."
+            exit()
+    else:
+        print "Accepts 1 argument input file exclusively."
+        exit()
 
 # Main function
 def main ():
-    file = validate(sys.argv[1])
-    print tsp(file_to_dict(file))
+    graph = validate(sys.argv)
+    # tsp(graph)
+    print tsp(file)
+    return
 
 
 if __name__ == '__main__':
     main()
+    exit()
