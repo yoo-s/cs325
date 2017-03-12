@@ -26,7 +26,7 @@ def farthest_insertion (graph):
     a = graph[a_iter]; b = graph[b_iter]
     best_a = a; best_b = b
 
-    while there are cities left to be checked,
+    # while there are cities left to be checked,
     for i in range(0, len(graph)-1): # loop a
         for j in range(1, len(graph)): # loop b
             a = graph[i]; b = graph[j]
