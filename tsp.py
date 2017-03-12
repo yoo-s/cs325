@@ -17,24 +17,35 @@ import sys
 # Farthest insertion tour construction algorithm
 # Insert nodes whose minimal distance to a tour node is maximal. The idea behind this 
 # strategy is to take a graph of cities and spit out a pretty good (not optimal!) tour.
-def farthest_insertion (graph):	
-    # The starting tour is usually some tour on three nodes, e.g. those nodes that form the largest triangle. 
-    # For Euclidean problems, a good starting tour is the tour that follows the convex hull of all nodes.  
-    # Step 1. Start with a sub-graph consisting of the largest triangle convex hull.
+def farthest_insertion (graph):
+    # Step 1. Find two cities farthest from each other to create a starting subtour.
+
+    max_distance = 0
+    a_iter = 0; b_iter = 1
+    a = graph[a_iter]; b = graph[b_iter]
+    best_a = a; best_b = b
+
+    # while there are cities left to be checked,
+    while True:
+        # get distance between first city a and a second city b
+        distance1 = sqrt((bx - ax)**2 + (by - ay)**2)
+    
+        # set b as another city and calculate the distance between the first city and the newly picked city
+        b_iter += 1
+        distance2 = sqrt((bx - ax)**2 + (by - ay)**2)
+
+        # if the second calculated distance is greater than the first, update the max distance
+        if distance2 > distance1:
+            max_distance = distance2
+
+    # update the cities with the maximum inter-city distance
+    best_a = a; best_b = b
 
 
-    # How to choose next node to be inserted.
-    # A new node is inserted into the tour at the point that causes the minimum increase in the length 
-    # of the tour.
-    # Step 2. Find node r such that cir is maximal and form sub-tour i-r-i.
+    # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
 
-    # Where to insert chosen node.
-    # Step 3. (Selection step) Given a sub-tour, find node r not in the sub-tour farthest from any node in the sub-tour; i.e. with maximal crj
 
-    # Step 4. (Insertion step) Find the arc (i, j) in the sub-tour which minimizes cir + crj - cij . Insert r between i and j.
-
-    # Step 5. If all the nodes are added to the tour, stop. Else go to step 3
-
+    # return a pretty good (not optimal) tour
     return tour
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
