@@ -26,20 +26,19 @@ def farthest_insertion (graph):
     best_a = a; best_b = b
 
     # while there are cities left to be checked,
-    while True:
-        # get distance between first city a and a second city b
-        distance1 = sqrt((bx - ax)**2 + (by - ay)**2)
-    
-        # set b as another city and calculate the distance between the first city and the newly picked city
-        b_iter += 1
-        distance2 = sqrt((bx - ax)**2 + (by - ay)**2)
+    for i in range(0, len(graph)-1): # loop a
+        for j in range(1, len(graph)): # loop b
+            a = graph[i]; b = graph[j]
 
-        # if the second calculated distance is greater than the first, update the max distance
-        if distance2 > distance1:
-            max_distance = distance2
+            # get distance between first city a and a second city b
+            distance = sqrt((bx - ax)**2 + (by - ay)**2)
+   
+            # if the second calculated distance is greater than the first, update the max distance
+            if distance > max_distance:
+                max_distance = distance
+                # update the cities with the maximum inter-city distance
+                farthest_pair = (a, b)
 
-    # update the cities with the maximum inter-city distance
-    best_a = a; best_b = b
 
 
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
