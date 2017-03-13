@@ -51,11 +51,9 @@ def farthest_insertion (graph):
     # turn dict of cities into the new starting tour
     tour = dict(cities.items())
 
-    return 0
-
-
+    '''
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
-'''
+
     # reset max distance
     max_distance = 0
     # initialize key of city to remove from graph
@@ -79,9 +77,10 @@ def farthest_insertion (graph):
                 tour_city = i
 
         # remove the city from the graph
-        del graph[tour_city]
-    '''
-    #return tour
+        del graph[tour_city]'''
+    print "\nstarting tour:", tour
+
+    return tour
 
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
