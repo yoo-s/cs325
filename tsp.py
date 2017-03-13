@@ -25,6 +25,8 @@ def farthest_insertion (graph):
     # initialize max distance
     max_distance = 0
 
+    print graph[0]
+
     # while there are cities left to be checked,
     for i in range(0, len(graph)-1): # loop a
         for j in range(i+1, len(graph)): # loop b
@@ -49,30 +51,38 @@ def farthest_insertion (graph):
 
     # reset max distance
     max_distance = 0
-    new_city = 0
+
     # while there are cities left in graph,
     while len(graph) > 0:
-    	# set city a as the last city added to the tour and set city b as the next city in graph
-        a = tour[-1]; b = graph[new_city]
+        # for each city in graph,
+        for i in range(0, len(graph)):
+            # set city a as the last city added to the tour and set city b as the next city in graph
+            a = tour[-1]; b = graph[i]
 
             # get distance between city a and city b
             distance = sqrt((bx - ax)**2 + (by - ay)**2)
    
-            # if the calculated distance is greater than the current max distance, update the max distance
+            # if the calculated distance is greater than the current max distance, update the max distance and farthest city
             if distance > max_distance:
                 max_distance = distance
+                farthest_city = b
+
+        
         # remove the farthest city from the graph
-        graph.pop(b)
+        graph.pop(farthest_city)
         # add the city to the new subtour
-        tour.append(b)
+        tour.append(farthest_city)
 
     # return a pretty good (not optimal) tour
     return tour
 
+
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
 def two_opt (graph):
     # Add 2-OPT code
-    return graph
+    better_tour = {}
+
+    return better_tour
 
 # TSP - Combine farthest insertion and 2-opt.
 def tsp (graph):
@@ -83,8 +93,10 @@ def file_to_dict (file):
     graph = {}
     file = open(file,'r+')
     for line in file:
-        (node,x,y) = line.split()
+        node, x, y = line.split()
         graph[node] = (int(x),int(y))
+        #print graph[node]
+        
     return graph
 
 # Validates input file and calls file_to_dict() to return a valid
@@ -110,7 +122,7 @@ def validate (arg_list=[],*arg):
 def main ():
     graph = validate(sys.argv)
     print graph
-    # tsp(graph)
+    #tsp(graph)
     return
 
 
