@@ -93,10 +93,8 @@ def file_to_dict (file):
     graph = {}
     file = open(file,'r+')
     for line in file:
-        node, x, y = line.split()
-        graph[node] = (int(x),int(y))
-        #print graph[node]
-        
+        (node,x,y) = line.split()
+        graph[int(node)] = (int(x),int(y))
     return graph
 
 # Validates input file and calls file_to_dict() to return a valid
