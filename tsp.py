@@ -13,19 +13,21 @@ insertion causes the minimum increase in total tour length.
 '''
 
 import sys
+from math import *
+from collections import OrderedDict
 
 # Farthest insertion tour construction algorithm
 # Insert nodes whose minimal distance to a tour node is maximal. The idea behind this 
 # strategy is to take a graph of cities and spit out a pretty good (not optimal!) tour.
 def farthest_insertion (graph):
-    # Step 1. Find two cities farthest from each other to create a starting subtour.
+    # Step 1. Find two cities farthest from each other to create a starting tour.
 
-    # initialize an empty tour
-    tour = {}
+    # initialize an ordered dict of cities
+    cities = OrderedDict()
     # initialize max distance
     max_distance = 0
-
-    print graph[0]
+    # initialize keys of cities to remove from graph
+    tour_a = 0; tour_b = 0
 
     # while there are cities left to be checked,
     for i in range(0, len(graph)-1): # loop a
@@ -34,47 +36,52 @@ def farthest_insertion (graph):
             a = graph[i]; b = graph[j]
 
             # get distance between first city a and a second city b
-            distance = sqrt((bx - ax)**2 + (by - ay)**2)
+            distance = sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
    
             # if the calculated distance is greater than the current max distance, update the max distance
             if distance > max_distance:
                 max_distance = distance
-                # update the cities with the maximum inter-city distance
-                farthest_pair = (a, b)
+                # update the keys of cities with the maximum inter-city distance
+                tour_a = i; tour_b = j
+
+    # add the cities to the dict of cities
+    cities[0] = graph[tour_a]; cities[1] = graph[tour_b]
     # remove the two cities from the graph
-    graph.pop(a); graph.pop(b)
-    # add the cities to the new subtour
-    tour.append(a); tour.append(b)
+    del graph[tour_a]; del graph[tour_b]
+    # turn dict of cities into the new starting tour
+    tour = dict(cities.items())
+
+    return 0
 
 
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
-
+'''
     # reset max distance
     max_distance = 0
+    # initialize key of city to remove from graph
+    tour_city = 0
 
     # while there are cities left in graph,
     while len(graph) > 0:
         # for each city in graph,
-        for i in range(0, len(graph)):
-            # set city a as the last city added to the tour and set city b as the next city in graph
-            a = tour[-1]; b = graph[i]
+        for i in graph:
+            print i
+            a = tour[len(tour)-1]; b = graph[i]
+            print a, b
 
             # get distance between city a and city b
-            distance = sqrt((bx - ax)**2 + (by - ay)**2)
-   
+            distance = sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+
             # if the calculated distance is greater than the current max distance, update the max distance and farthest city
             if distance > max_distance:
                 max_distance = distance
-                farthest_city = b
+                # update the keys of cities with the maximum inter-city distance
+                tour_city = i
 
-        
-        # remove the farthest city from the graph
-        graph.pop(farthest_city)
-        # add the city to the new subtour
-        tour.append(farthest_city)
-
-    # return a pretty good (not optimal) tour
-    return tour
+        # remove the city from the graph
+        del graph[tour_city]
+    '''
+    #return tour
 
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
@@ -120,7 +127,7 @@ def validate (arg_list=[],*arg):
 def main ():
     graph = validate(sys.argv)
     print graph
-    #tsp(graph)
+    tsp(graph)
     return
 
 
