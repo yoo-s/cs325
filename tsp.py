@@ -17,7 +17,7 @@ from math import *
 from collections import OrderedDict
 
 # Farthest insertion tour construction algorithm
-# Insert nodes whose minimal distance to a tour node is maximal. The idea behind this 
+# Insert nodes whose minimal distance to a tour node is maximal <sounds funny. is that correct?>. The idea behind this 
 # strategy is to take a graph of cities and spit out a pretty good (not optimal!) tour.
 def farthest_insertion (graph):
     # Step 1. Find two cities farthest from each other to create a starting tour.
@@ -26,6 +26,8 @@ def farthest_insertion (graph):
     cities = OrderedDict()
     # initialize max distance
     max_distance = 0
+    # initialize total distance traveled
+    total_distance = 0
     # initialize keys of cities to remove from graph
     tour_a = 0; tour_b = 0
 
@@ -36,74 +38,83 @@ def farthest_insertion (graph):
             a = graph[i]; b = graph[j]
 
             # get distance between first city a and a second city b
+            # square root of ( (x2-x1)^2 + (y2-y1)^2 )
             distance = sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
-   
+
             # if the calculated distance is greater than the current max distance, update the max distance
             if distance > max_distance:
                 max_distance = distance
                 # update the keys of cities with the maximum inter-city distance
                 tour_a = i; tour_b = j
 
+    # start a running sum of the total distance traveled
+    total_distance = max_distance
     # add the cities to the dict of cities
     cities[0] = graph[tour_a]; cities[1] = graph[tour_b]
     # remove the two cities from the graph
     del graph[tour_a]; del graph[tour_b]
     # turn dict of cities into the new starting tour
-    tour = dict(cities.items())
-
+    tour_coords = dict(cities.items())
+    tour_nums = [tour_a,tour_b]
     
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
-
-    # initialize a second ordered dict for containing a city to later put into the tour
-    city = {}
-    # reset max distance
-    max_distance = 0
-    # initialize key of city to remove from graph
-    tour_city = 0
-
+    
     # while there are cities left in graph,
-    while len(graph) >= 0:
+    while len(graph) > 0:
+        # initialize a second ordered dict for containing a city to later put into the tour
+        city = OrderedDict()
+        # reset max distance
+        max_distance = 0
+        # initialize key of city to remove from graph
+        tour_city = 0
         # for each city in graph,
-        for i in graph:
-            #print "iter:", i (This is just a debugging print statment)
+        for key,value in graph.iteritems():
+            #print "iter:", i (This is just a debugging print statement)
             # set city a as the latest city added to the tour and set city b as the next city to check in graph
-            a = tour[len(tour)-1]; 
-            b = graph[i]
-
+            a = tour_coords[len(tour_coords)-1]; 
+            b = value        
             # get distance between city a and city b
-            distance = sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+            distance = sqrt((int(b[0]) - a[0])**2 + (int(b[1]) - a[1])**2)
 
             # if the calculated distance is greater than the current max distance, update the max distance and key of that farthest city
             if distance > max_distance:
                 max_distance = distance
                 # update the key of city with the maximum inter-city distance to latest city in tour
-                tour_city = i
-                # print "tour_city:", tour_city (debugging statement)
+                tour_city = key
+                tour_coord = value
 
-        # add farthest city to the city dict
+        # keep a running sum of the total distance traveled
+        total_distance += max_distance
+    
         # ------------------------------------
-        city[len(tour)] = graph[tour_city]                          # This line causes an error, it has something to do with the cities' key names:
-        # ------------------------------------                        # The next farthest city in the graph seems to be the 75th one, but it's key is "75" 
-        # print "city:", city (debugging statement)                   # and it's trying to add the city to the tour with 'city[2] = graph[75]' 
-                                                                      # and python isn't liking that conflict between '75' and '2'. Does that make sense? 
+        # add farthest city to the city dict
+        city[len(tour_coords)] = tour_coord   
         # add farthest city to the tour
-        tour.update(city)
-        print "\nstarting tour:", tour, "\n" # debugging statement
+        tour_coords.update(city)
+        tour_nums.append(tour_city)                      
+        # ------------------------------------                        
 
         # remove the city from the graph
-        del graph[tour_city]
+        if len(graph) is 0:
+            del graph
+        else:
+            del graph[tour_city]
+        # remove city from city dict
+        del city
 
-    # print "\npretty good tour:", tour # debugging statement - prints out the starting tour of two farthest cities
+    #debug code
+    print total_distance
+    for city in tour_nums:
+        print city
+    # --
 
-    return tour
+    return tour_coords
 
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
 def two_opt (graph):
     # Add 2-OPT code
-    better_tour = {}
-
-    return better_tour
+    return graph
 
 # TSP - Combine farthest insertion and 2-opt.
 def tsp (graph):
@@ -140,8 +151,7 @@ def validate (arg_list=[],*arg):
 # Main function
 def main ():
     graph = validate(sys.argv)
-    print graph
-    tsp(graph)
+    print tsp(graph)
     return
 
 
