@@ -144,7 +144,7 @@ def validate (arg_list=[],*arg):
 def main ():
     graph = validate(sys.argv)
     tour = tsp(graph)
-    print tour
+    # print tour
     return
 
 
