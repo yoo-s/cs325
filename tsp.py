@@ -90,7 +90,6 @@ def farthest_insertion (graph):
         city[tour_city] = tour_coord   
         # add farthest city to the tour
         tour_coords.update(city)
-        tour_nums.append(tour_city)                      
         # ------------------------------------                        
 
         # remove the city from the graph
@@ -100,12 +99,6 @@ def farthest_insertion (graph):
             del graph[tour_city]
         # remove city from city dict
         del city
-
-    # #debug code
-    # print total_distance
-    # for city in tour_nums:
-    #     print city
-    # # --
 
     return tour_coords
 
