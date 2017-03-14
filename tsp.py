@@ -51,34 +51,49 @@ def farthest_insertion (graph):
     # turn dict of cities into the new starting tour
     tour = dict(cities.items())
 
-    '''
+    
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
 
+    # initialize a second ordered dict for containing a city to later put into the tour
+    city = {}
     # reset max distance
     max_distance = 0
     # initialize key of city to remove from graph
     tour_city = 0
 
     # while there are cities left in graph,
-    while len(graph) > 0:
+    while len(graph) >= 0:
         # for each city in graph,
         for i in graph:
-            print i
-            a = tour[len(tour)-1]; b = graph[i]
-            print a, b
+            #print "iter:", i (This is just a debugging print statment)
+            # set city a as the latest city added to the tour and set city b as the next city to check in graph
+            a = tour[len(tour)-1]; 
+            b = graph[i]
 
             # get distance between city a and city b
             distance = sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
-            # if the calculated distance is greater than the current max distance, update the max distance and farthest city
+            # if the calculated distance is greater than the current max distance, update the max distance and key of that farthest city
             if distance > max_distance:
                 max_distance = distance
-                # update the keys of cities with the maximum inter-city distance
+                # update the key of city with the maximum inter-city distance to latest city in tour
                 tour_city = i
+                # print "tour_city:", tour_city (debugging statement)
+
+        # add farthest city to the city dict
+        # ------------------------------------
+        city[len(tour)] = graph[tour_city]                          # This line causes an error, it has something to do with the cities' key names:
+        # ------------------------------------                        # The next farthest city in the graph seems to be the 75th one, but it's key is "75" 
+        # print "city:", city (debugging statement)                   # and it's trying to add the city to the tour with 'city[2] = graph[75]' 
+                                                                      # and python isn't liking that conflict between '75' and '2'. Does that make sense? 
+        # add farthest city to the tour
+        tour.update(city)
+        print "\nstarting tour:", tour, "\n" # debugging statement
 
         # remove the city from the graph
-        del graph[tour_city]'''
-    print "\nstarting tour:", tour
+        del graph[tour_city]
+
+    # print "\npretty good tour:", tour # debugging statement - prints out the starting tour of two farthest cities
 
     return tour
 
