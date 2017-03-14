@@ -50,11 +50,11 @@ def farthest_insertion (graph):
     # start a running sum of the total distance traveled
     total_distance = max_distance
     # add the cities to the dict of cities
-    cities[0] = graph[tour_a]; cities[1] = graph[tour_b]
+    cities[tour_a] = graph[tour_a]; cities[tour_b] = graph[tour_b]
     # remove the two cities from the graph
     del graph[tour_a]; del graph[tour_b]
     # turn dict of cities into the new starting tour
-    tour_coords = dict(cities.items())
+    tour_coords = OrderedDict(cities.items())
     tour_nums = [tour_a,tour_b]
     
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
@@ -64,31 +64,30 @@ def farthest_insertion (graph):
         # initialize a second ordered dict for containing a city to later put into the tour
         city = OrderedDict()
         # reset max distance
-        max_distance = 0
+        min_distance = float('inf')
         # initialize key of city to remove from graph
         tour_city = 0
         # for each city in graph,
         for key,value in graph.iteritems():
-            #print "iter:", i (This is just a debugging print statement)
             # set city a as the latest city added to the tour and set city b as the next city to check in graph
-            a = tour_coords[len(tour_coords)-1]; 
-            b = value        
+            c = tour_coords[next(reversed(tour_coords))]; 
+            d = value        
             # get distance between city a and city b
-            distance = sqrt((int(b[0]) - a[0])**2 + (int(b[1]) - a[1])**2)
+            distance = sqrt((d[0] - c[0])**2 + (d[1] - c[1])**2)
 
-            # if the calculated distance is greater than the current max distance, update the max distance and key of that farthest city
-            if distance > max_distance:
-                max_distance = distance
-                # update the key of city with the maximum inter-city distance to latest city in tour
+            # if the calculated distance is less than the current min distance, update the max distance and key of that farthest city
+            if distance < min_distance:
+                min_distance = distance
+                # update the key of city with the min inter-city distance to latest city in tour
                 tour_city = key
                 tour_coord = value
 
         # keep a running sum of the total distance traveled
-        total_distance += max_distance
+        total_distance += min_distance
     
         # ------------------------------------
         # add farthest city to the city dict
-        city[len(tour_coords)] = tour_coord   
+        city[tour_city] = tour_coord   
         # add farthest city to the tour
         tour_coords.update(city)
         tour_nums.append(tour_city)                      
@@ -102,11 +101,11 @@ def farthest_insertion (graph):
         # remove city from city dict
         del city
 
-    #debug code
-    print total_distance
-    for city in tour_nums:
-        print city
-    # --
+    # #debug code
+    # print total_distance
+    # for city in tour_nums:
+    #     print city
+    # # --
 
     return tour_coords
 
@@ -151,7 +150,8 @@ def validate (arg_list=[],*arg):
 # Main function
 def main ():
     graph = validate(sys.argv)
-    print tsp(graph)
+    tour = tsp(graph)
+    print tour
     return
 
 
