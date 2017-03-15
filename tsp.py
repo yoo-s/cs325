@@ -19,7 +19,7 @@ from collections import OrderedDict
 # Farthest insertion tour construction algorithm
 # Insert nodes whose minimal distance to a tour node is maximal <sounds funny. is that correct?>. The idea behind this 
 # strategy is to take a graph of cities and spit out a pretty good (not optimal!) tour.
-def farthest_insertion (graph):
+def greedy_construction (graph):
     # Step 1. Find two cities farthest from each other to create a starting tour.
 
     # initialize an ordered dict of cities
@@ -55,7 +55,6 @@ def farthest_insertion (graph):
     del graph[tour_a]; del graph[tour_b]
     # turn dict of cities into the new starting tour
     tour_coords = OrderedDict(cities.items())
-    tour_nums = [tour_a,tour_b]
     
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
     
@@ -93,12 +92,8 @@ def farthest_insertion (graph):
         # ------------------------------------                        
 
         # remove the city from the graph
-        if len(graph) is 0:
-            del graph
-        else:
+        if len(graph) is not 0:
             del graph[tour_city]
-        # remove city from city dict
-        del city
 
     return tour_coords
 
@@ -110,7 +105,7 @@ def two_opt (graph):
 
 # TSP - Combine farthest insertion and 2-opt.
 def tsp (graph):
-    return two_opt(farthest_insertion(graph))
+    return two_opt(greedy_construction(graph))
 
 #Converts txt file to python dict of format {node:(x,y)}
 def file_to_dict (file):
@@ -144,7 +139,7 @@ def validate (arg_list=[],*arg):
 def main ():
     graph = validate(sys.argv)
     tour = tsp(graph)
-    # print tour
+    print tour
     return
 
 
