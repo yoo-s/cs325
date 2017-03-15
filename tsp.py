@@ -16,9 +16,12 @@ import sys
 from math import *
 from collections import OrderedDict
 
-# Farthest insertion tour construction algorithm
-# Insert nodes whose minimal distance to a tour node is maximal <sounds funny. is that correct?>. The idea behind this 
-# strategy is to take a graph of cities and spit out a pretty good (not optimal!) tour.
+# Function greturns the distance of two tuples a=(x1,y1),b=(x2,y2)
+def get_distance(a,b):
+    return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+
+# Greedy approximation tour construction algorithm
+# Add nodes to graph whose distance to the last tour node is minimal
 def greedy_construction (graph):
     # Step 1. Find two cities farthest from each other to create a starting tour.
 
@@ -36,10 +39,9 @@ def greedy_construction (graph):
         for j in range(i+1, len(graph)): # loop b
             # pick next two cities in graph to check inter-city distance
             a = graph[i]; b = graph[j]
-
             # get distance between first city a and a second city b
             # square root of ( (x2-x1)^2 + (y2-y1)^2 )
-            distance = sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+            distance = get_distance(a,b)
 
             # if the calculated distance is greater than the current max distance, update the max distance
             if distance > max_distance:
@@ -47,8 +49,6 @@ def greedy_construction (graph):
                 # update the keys of cities with the maximum inter-city distance
                 tour_a = i; tour_b = j
 
-    # start a running sum of the total distance traveled
-    total_distance = max_distance
     # add the cities to the dict of cities
     cities[tour_a] = graph[tour_a]; cities[tour_b] = graph[tour_b]
     # remove the two cities from the graph
@@ -72,7 +72,7 @@ def greedy_construction (graph):
             c = tour_coords[next(reversed(tour_coords))]; 
             d = value        
             # get distance between city a and city b
-            distance = sqrt((d[0] - c[0])**2 + (d[1] - c[1])**2)
+            distance = get_distance(c,d)
 
             # if the calculated distance is less than the current min distance, update the max distance and key of that farthest city
             if distance < min_distance:
@@ -94,7 +94,9 @@ def greedy_construction (graph):
         # remove the city from the graph
         if len(graph) is not 0:
             del graph[tour_city]
-
+    total_distance += get_distance(tour_coords[next(iter(tour_coords))],
+    	tour_coords[next(reversed(tour_coords))])
+    output.write(str(total_distance)+'\n')
     return tour_coords
 
 
@@ -138,11 +140,14 @@ def validate (arg_list=[],*arg):
 # Main function
 def main ():
     graph = validate(sys.argv)
+    output = open('./output.txt','w+')
     tour = tsp(graph)
-    print tour
+    for key,value in tour.iteritems():
+    	output.write(str(key)+'\n')
     return
 
 
 if __name__ == '__main__':
+    output = open('./output.txt','w+')
     main()
     exit()
