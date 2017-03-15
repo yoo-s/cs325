@@ -96,9 +96,9 @@ def greedy_construction (graph):
             del graph[tour_city]
     total_distance += get_distance(tour_coords[next(iter(tour_coords))],
     	tour_coords[next(reversed(tour_coords))])
-    output.write(str(total_distance)+'\n')
+    output.write(str(int(total_distance)))
+    output.write('\n')
     return tour_coords
-
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
 def two_opt (graph):
@@ -140,10 +140,10 @@ def validate (arg_list=[],*arg):
 # Main function
 def main ():
     graph = validate(sys.argv)
-    output = open('./output.txt','w+')
     tour = tsp(graph)
     for key,value in tour.iteritems():
-    	output.write(str(key)+'\n')
+        output.write(str(key))
+        output.write('\n')
     return
 
 
