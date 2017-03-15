@@ -148,6 +148,6 @@ def main ():
 
 
 if __name__ == '__main__':
-    output = open('./output.txt','w+')
+    output = open(sys.argv[1]+'.tour','w+')
     main()
     exit()
