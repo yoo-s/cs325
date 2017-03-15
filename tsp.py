@@ -16,7 +16,7 @@ import sys
 from math import *
 from collections import OrderedDict
 
-# Function greturns the distance of two tuples a=(x1,y1),b=(x2,y2)
+# Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
 def get_distance(a,b):
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
@@ -62,7 +62,7 @@ def greedy_construction (graph):
     while len(graph) > 0:
         # initialize a second ordered dict for containing a city to later put into the tour
         city = OrderedDict()
-        # reset max distance
+        # reset min distance
         min_distance = float('inf')
         # initialize key of city to remove from graph
         tour_city = 0
@@ -85,9 +85,9 @@ def greedy_construction (graph):
         total_distance += min_distance
     
         # ------------------------------------
-        # add farthest city to the city dict
+        # add the nearest city to the city dict
         city[tour_city] = tour_coord   
-        # add farthest city to the tour
+        # add neearest city to the tour
         tour_coords.update(city)
         # ------------------------------------                        
 
