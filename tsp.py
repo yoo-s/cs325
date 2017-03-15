@@ -103,6 +103,29 @@ def greedy_construction (graph):
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
 def two_opt (graph):
     # Add 2-OPT code
+    while true:
+        min_chage = 0
+        for i in range(0, graph-2):
+            for j in range(i+2, graph):
+                change = get_distance(i, j) + get_distance(i+1,j+1) - get_distance(i,i+1) - get_distance(j,j+1)
+                if(min_change > change):
+                    min_change = change
+                    mini_i = i
+                    mini_j = j
+                    break
+        
+    #while true:
+ #       best_dist = calc_Total(existing_route)
+ #       for i in range(0, cities):
+ #           for j in range(i+1, cities):
+ #               new_route = (two_opt, i, k)
+ #               new_dist = calc_Total(new_route)
+ #               if(new_dist < best_dist):
+ #                   existing_route = new_route
+ #                   break
+                
+                   
+        
     return graph
 
 # TSP - Combine farthest insertion and 2-opt.
