@@ -5,10 +5,11 @@
 # Ava Cordero
 # Alston Godbolt
 # Soo-Min Yoo
-    Starting from a degenerate tour consisting of the two farthest 
+    Starting from a degenerate tour consisting of the two closest 
 cities, repeatedly choose the non-tour city with the minimum 
-distance to its nearest neighbor among the tour cities, and make 
-that city the next in the tour.
+distance to its nearest neighbor among the tour cities, and insert 
+it in between the two consecutive tour cities for which such an 
+insertion causes the minimum increase in total tour length.
 '''
 
 import sys
@@ -17,7 +18,6 @@ from collections import OrderedDict
 
 # Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
 def get_distance(a,b):
-    # return square root of ( (x2-x1)^2 + (y2-y1)^2 )
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
 # Greedy approximation tour construction algorithm
@@ -40,6 +40,7 @@ def greedy_construction (graph):
             # pick next two cities in graph to check inter-city distance
             a = graph[i]; b = graph[j]
             # get distance between first city a and a second city b
+            # square root of ( (x2-x1)^2 + (y2-y1)^2 )
             distance = get_distance(a,b)
 
             # if the calculated distance is greater than the current max distance, update the max distance
@@ -48,8 +49,6 @@ def greedy_construction (graph):
                 # update the keys of cities with the maximum inter-city distance
                 tour_a = i; tour_b = j
 
-    # the maximum distance is the total distance
-    total_distance = max_distance
     # add the cities to the dict of cities
     cities[tour_a] = graph[tour_a]; cities[tour_b] = graph[tour_b]
     # remove the two cities from the graph
@@ -63,12 +62,11 @@ def greedy_construction (graph):
     while len(graph) > 0:
         # initialize a second ordered dict for containing a city to later put into the tour
         city = OrderedDict()
-        # initialize min distance
+        # reset min distance
         min_distance = float('inf')
         # initialize key of city to remove from graph
         tour_city = 0
         # for each city in graph,
-
         for key,value in graph.iteritems():
             # set city a as the latest city added to the tour and set city b as the next city to check in graph
             c = tour_coords[next(reversed(tour_coords))]; 
@@ -96,20 +94,38 @@ def greedy_construction (graph):
         # remove the city from the graph
         if len(graph) is not 0:
             del graph[tour_city]
-
-    # add to the total distance the distance from the last node back to the first node.
     total_distance += get_distance(tour_coords[next(iter(tour_coords))],
     	tour_coords[next(reversed(tour_coords))])
-
-    # write the total distance and new line individually -- experienced some bug
     output.write(str(int(total_distance)))
     output.write('\n')
-
     return tour_coords
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
 def two_opt (graph):
     # Add 2-OPT code
+    while true:
+        min_chage = 0
+        for i in range(0, graph-2):
+            for j in range(i+2, graph):
+                change = get_distance(i, j) + get_distance(i+1,j+1) - get_distance(i,i+1) - get_distance(j,j+1)
+                if(min_change > change):
+                    min_change = change
+                    mini_i = i
+                    mini_j = j
+                    break
+        
+    #while true:
+ #       best_dist = calc_Total(existing_route)
+ #       for i in range(0, cities):
+ #           for j in range(i+1, cities):
+ #               new_route = (two_opt, i, k)
+ #               new_dist = calc_Total(new_route)
+ #               if(new_dist < best_dist):
+ #                   existing_route = new_route
+ #                   break
+                
+                   
+        
     return graph
 
 # TSP - Combine farthest insertion and 2-opt.
