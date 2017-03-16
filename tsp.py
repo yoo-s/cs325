@@ -5,11 +5,10 @@
 # Ava Cordero
 # Alston Godbolt
 # Soo-Min Yoo
-    Starting from a degenerate tour consisting of the two closest 
+    Starting from a degenerate tour consisting of the two farthest 
 cities, repeatedly choose the non-tour city with the minimum 
-distance to its nearest neighbor among the tour cities, and insert 
-it in between the two consecutive tour cities for which such an 
-insertion causes the minimum increase in total tour length.
+distance to its nearest neighbor among the tour cities, and make 
+that city the next in the tour.
 '''
 
 import sys
@@ -18,6 +17,7 @@ from collections import OrderedDict
 
 # Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
 def get_distance(a,b):
+    # return square root of ( (x2-x1)^2 + (y2-y1)^2 )
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
 # Greedy approximation tour construction algorithm
@@ -40,7 +40,6 @@ def greedy_construction (graph):
             # pick next two cities in graph to check inter-city distance
             a = graph[i]; b = graph[j]
             # get distance between first city a and a second city b
-            # square root of ( (x2-x1)^2 + (y2-y1)^2 )
             distance = get_distance(a,b)
 
             # if the calculated distance is greater than the current max distance, update the max distance
@@ -62,11 +61,12 @@ def greedy_construction (graph):
     while len(graph) > 0:
         # initialize a second ordered dict for containing a city to later put into the tour
         city = OrderedDict()
-        # reset min distance
+        # initialize min distance
         min_distance = float('inf')
         # initialize key of city to remove from graph
         tour_city = 0
         # for each city in graph,
+
         for key,value in graph.iteritems():
             # set city a as the latest city added to the tour and set city b as the next city to check in graph
             c = tour_coords[next(reversed(tour_coords))]; 
@@ -94,10 +94,15 @@ def greedy_construction (graph):
         # remove the city from the graph
         if len(graph) is not 0:
             del graph[tour_city]
+
+    # add to the total distance the distance from the last node back to the first node.
     total_distance += get_distance(tour_coords[next(iter(tour_coords))],
     	tour_coords[next(reversed(tour_coords))])
+
+    # write the total distance and new line individually -- experienced some bug
     output.write(str(int(total_distance)))
     output.write('\n')
+
     return tour_coords
 
 # 2-OPT - Take a tour and spit out something (hopefully!) better.
