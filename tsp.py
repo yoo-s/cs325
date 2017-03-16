@@ -48,6 +48,8 @@ def greedy_construction (graph):
                 # update the keys of cities with the maximum inter-city distance
                 tour_a = i; tour_b = j
 
+    # the maximum distance is the total distance
+    total_distance = max_distance
     # add the cities to the dict of cities
     cities[tour_a] = graph[tour_a]; cities[tour_b] = graph[tour_b]
     # remove the two cities from the graph
