@@ -10,7 +10,7 @@ cities, repeatedly choose the non-tour city with the minimum
 distance to its nearest neighbor among the tour cities, and make 
 that city the next in the tour.
 '''
-import sys,numpy
+import sys,time,numpy
 from math import *
 from collections import OrderedDict,deque
 # import matplotlib.pyplot as plt
@@ -216,8 +216,12 @@ def plot_graph (tour):
 def main ():
     # validate the input and assign it to graph
     graph = validate(sys.argv)
-    # find the best tour we can
+
+    # find the best tour we can and print the runtime.
+    t0 = time.clock()
     tour = two_opt(greedy_construction(graph))
+    print 'RUNTIME: ',(time.clock()-t0)
+
     # output tour data to .tour file
     output_tour(tour,sys.argv[1])
     # plot_graph(tour)
