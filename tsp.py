@@ -12,25 +12,52 @@ that city the next in the tour.
 '''
 import sys,numpy
 from math import *
-from collections import OrderedDict
+from collections import OrderedDict,deque
 # import matplotlib.pyplot as plt
+
+# define a function-set to quick-peak a deque
+def qp (dek):
+    if dek:
+        var = dek.pop()
+        dek.append(var)
+        return var
+    else:
+        return False
+def qpl (dek):
+    if dek:
+        var = dek.popleft()
+        dek.appendleft(var)
+        return var
+    else:
+        return False
 
 # Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
 def get_distance(a,b):
+    if any (n==0 for n in (a,b)):
+        return 0
     # return square root of ( (x2-x1)^2 + (y2-y1)^2 )
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
-# Function Get_Line_length returns the length of a full
+# Function Get_Line_length returns the length of a line from u to v
 def get_line_length (tour):
     seen = []
     distance = 0
     for node in tour:
-        print len(seen)
         if len(seen) > 0:
             distance += get_distance(tour[next(reversed(seen))],tour[node])
         seen.append(node)
-    return distance + get_distance(tour[next(iter(tour))],
-        tour[next(reversed(tour))])
+    return distance
+
+# Function Get_Tour_length returns the length of a full tour
+def get_tour_length (tour):
+    seen = []
+    distance = 0
+    op = qp(tour)
+    while qp(tour):
+        if len(seen) > 0:
+            distance += get_distance(tour.pop(),qp(tour))
+        seen.append(qp(tour))
+    return distance
 
 # Greedy approximation tour construction algorithm
 # Add nodes to graph whose distance to the last tour node is minimal
@@ -99,37 +126,31 @@ def greedy_construction (graph):
 
 # Function 2-OPT(route, i, k):
 # Takes a tour and spit out something better.
-def two_opt (graph):
-    # initialize new_route
-    new_route = []
+def two_opt (tour):
+    # define a subfunction to recursively improve the tour
+    def grdy_optimize (tour,new_tour):
+        while len(tour) > 0:
+            # if distance to dest > distance to neighbor's dest
+            if get_distance(qp(new_tour),tour[next(iter(tour))]) >\
+            get_distance(qp(new_tour),tour[next(reversed(tour))]):
+                # swap dest with neighbors dest
+                new_tour.append(tour[next(reversed(tour))])
+                new_tour.appendleft(tour[next(iter(tour))])
+            else:
+                new_tour.append(tour[next(iter(tour))])
+                new_tour.appendleft(tour[next(reversed(tour))])
+            del tour[next(iter(tour))] ; del tour[next(reversed(tour))]
+        return new_tour
 
-    # # 1. take route[1] to route[i-1] and add them in order to new_route
-    # while true:
-    #     min_chage = 0
-    #     for i in range(0, graph-2):
-    #         for j in range(i+2, graph):
-    #             change = get_distance(i, j) + get_distance(i+1,j+1) - get_distance(i,i+1) - get_distance(j,j+1)
-    #             if(min_change > change):
-    #                 min_change = change
-    #                 mini_i = i
-    #                 mini_j = j
-    #                 break
+    # initialize a new tour
+    new_tour = deque()
+    # add the first and last cities of the old tour to the new
+    new_tour.append(tour[next(iter(tour))])
+    new_tour.appendleft(tour[next(reversed(tour))])
+    # delete the cities from the old tour ?
+    del tour[next(iter(tour))] ; del tour[next(reversed(tour))]
 
-    # 2. take route[i] to route[k] and add them in reverse order to new_route
-    #while true:
- #       best_dist = calc_Total(existing_route) <-- can we calc the delta instead? that will be O(n)
- #       for i in range(0, cities):
- #           for j in range(i+1, cities):
- #               new_route = (two_opt, i, k)
- #               new_dist = calc_Total(new_route)
- #               if(new_dist < best_dist):
- #                   existing_route = new_route
- #                   break
-
-    # 3. take route[k+1] to end and add them in order to new_route
-
-    # return new_route;
-    return graph
+    return grdy_optimize(tour,new_tour);
 
 #Converts txt file to python dict of format {node:(x,y)}
 def file_to_dict (file):
@@ -161,13 +182,13 @@ def validate (arg_list=[],*arg):
 
 def output_tour (tour,ofile):
     with open(ofile+'.tour','w+') as output:
+        tour_print = list(tour)
         # print the total distance and new line individually -- experienced some bug
-        output.write(str(int(get_line_length(tour))))
+        output.write(str(int(get_tour_length(tour))))
         output.write('\n')
         # print out each city index
-        for key,value in tour.iteritems():
-            # write the key and new line individually -- experienced some bug
-            output.write(str(key))
+        for city in tour_print:
+            output.write(str(city))
             output.write('\n')
     return
 
