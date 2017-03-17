@@ -13,7 +13,6 @@ that city the next in the tour.
 import sys,numpy
 from math import *
 from collections import OrderedDict
-# from scipy.spatial import ConvexHull
 import matplotlib.pyplot as plt
 
 # Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
@@ -21,17 +20,26 @@ def get_distance(a,b):
     # return square root of ( (x2-x1)^2 + (y2-y1)^2 )
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
+# Function Get_Line_length returns the length of a full
+def get_line_length (tour):
+    seen = []
+    distance = 0
+    for node in tour:
+        print len(seen)
+        if len(seen) > 0:
+            distance += get_distance(tour[next(reversed(seen))],tour[node])
+        seen.append(node)
+    return distance + get_distance(tour[next(iter(tour))],
+        tour[next(reversed(tour))])
+
 # Greedy approximation tour construction algorithm
 # Add nodes to graph whose distance to the last tour node is minimal
 def greedy_construction (graph):
     # Step 1. Find two cities farthest from each other to create a starting tour.
-
     # initialize an ordered dict of cities
     tour_coords = OrderedDict()
     # initialize max distance
     max_distance = 0
-    # initialize total distance traveled
-    total_distance = 0
     # initialize keys of cities to remove from graph
     tour_a = 0; tour_b = 0
 
@@ -49,25 +57,12 @@ def greedy_construction (graph):
                 # update the keys of cities with the maximum inter-city distance
                 tour_a = i; tour_b = j
 
-    # the maximum distance is the total distance
-    total_distance = max_distance
     # add the cities to the dict of cities
     tour_coords[tour_a] = graph[tour_a]; tour_coords[tour_b] = graph[tour_b]
     # remove the two cities from the graph
     del graph[tour_a]; del graph[tour_b]
-
-    # # compute convex hull using SciPy.spatial
-    # hull = ConvexHull(graph.values())
-    # # # add the cities to the dict of cities
-    # tour_coords = OrderedDict()
-    # for vertex in hull.vertices:
-    #     # add the vertex to tour_coords
-    #     tour_coords[vertex] = hull.points[vertex] 
-    #     # remove the vertex from the graph
-    #     del graph[vertex]
     
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
-    
     # while there are cities left in graph,
     while len(graph) > 0:
         # initialize a second ordered dict for containing a city to later put into the tour
@@ -92,27 +87,13 @@ def greedy_construction (graph):
                 tour_city = key
                 tour_coord = value
 
-        # keep a running sum of the total distance traveled
-        total_distance += min_distance
-    
-        # ------------------------------------
         # add the nearest city to the city dict
         city[tour_city] = tour_coord   
         # add nearest city to the tour
         tour_coords.update(city)
-        # ------------------------------------                        
-
         # remove the city from the graph
-        if len(graph) is not 0:
+        if len(graph) > 0:
             del graph[tour_city]
-
-    # add to the total distance the distance from the last node back to the first node.
-    total_distance += get_distance(tour_coords[next(iter(tour_coords))],
-    	tour_coords[next(reversed(tour_coords))])
-
-    # write the total distance and new line individually -- experienced some bug
-    output.write(str(int(total_distance)))
-    output.write('\n')
 
     return tour_coords
 
@@ -150,10 +131,6 @@ def two_opt (graph):
     # return new_route;
     return graph
 
-# TSP - Combine farthest insertion and 2-opt.
-def tsp (graph):
-    return two_opt(greedy_construction(graph))
-
 #Converts txt file to python dict of format {node:(x,y)}
 def file_to_dict (file):
     graph = {}
@@ -170,7 +147,7 @@ def validate (arg_list=[],*arg):
         arg = arg_list[1]
         if arg.lower().endswith('.txt'):
             try:
-                graph = file_to_dict(arg)
+                return file_to_dict(arg)
             except:
                 print "Input file line format must be 'N X Y' for Node number, X-coordinate, and Y-coordinate."
                 exit()
@@ -182,18 +159,19 @@ def validate (arg_list=[],*arg):
         print "Accepts 1 argument input file exclusively."
         exit()
 
-# Main function
-def main ():
-    # validate the input and assign it to graph
-    graph = validate(sys.argv)
-    # find the best tour we can
-    tour = tsp(graph)
-    # print out each city index
-    for key,value in tour.iteritems():
-        # write the key and new line individually -- experienced some bug
-        output.write(str(key))
+def output_tour (tour,ofile):
+    with open(ofile+'.tour','w+') as output:
+        # print the total distance and new line individually -- experienced some bug
+        output.write(str(int(get_line_length(tour))))
         output.write('\n')
+        # print out each city index
+        for key,value in tour.iteritems():
+            # write the key and new line individually -- experienced some bug
+            output.write(str(key))
+            output.write('\n')
+    return
 
+def plot_graph (tour):
     # Test-code to plot the tour
     # Assign tour keys for plotting.
     pts = numpy.array(tour.values())
@@ -203,18 +181,25 @@ def main ():
     # print hull_indices
     # These are the actual points.
     hull_pts = pts[hull_indices,:]
-
+    # set the graph configurations
     plt.plot(pts[:, 0], pts[:, 1], 'ko', markersize=3)
     plt.fill(hull_pts[:,0], hull_pts[:,1], fill=False, edgecolor='b')
     # plt.xlim(0, x)
     # plt.ylim(0, y)
     plt.show()
-    # #
-
     return
 
+# Main function
+def main ():
+    # validate the input and assign it to graph
+    graph = validate(sys.argv)
+    # find the best tour we can
+    tour = two_opt(greedy_construction(graph))
+    # output tour data to .tour file
+    output_tour(tour,sys.argv[1])
+    plot_graph(tour)
+    return
 
 if __name__ == '__main__':
-    output = open(sys.argv[1]+'.tour','w+')
     main()
     exit()
