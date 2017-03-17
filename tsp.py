@@ -147,7 +147,7 @@ def two_opt (tour):
     # add the first and last cities of the old tour to the new
     new_tour.append(tour[next(iter(tour))])
     new_tour.appendleft(tour[next(reversed(tour))])
-    # delete the cities from the old tour ?
+    # delete the cities from the old tour
     del tour[next(iter(tour))] ; del tour[next(reversed(tour))]
 
     return grdy_optimize(tour,new_tour);
@@ -183,6 +183,7 @@ def validate (arg_list=[],*arg):
 def output_tour (tour,ofile):
     with open(ofile+'.tour','w+') as output:
         tour_print = list(tour)
+        print tour_print
         # print the total distance and new line individually -- experienced some bug
         output.write(str(int(get_tour_length(tour))))
         output.write('\n')
