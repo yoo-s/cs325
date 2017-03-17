@@ -13,7 +13,7 @@ that city the next in the tour.
 import sys,numpy
 from math import *
 from collections import OrderedDict
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 # Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
 def get_distance(a,b):
@@ -173,6 +173,7 @@ def output_tour (tour,ofile):
 
 def plot_graph (tour):
     # Test-code to plot the tour
+    # Uncomment line 16 for graph plotting (not supported on flip).
     # Assign tour keys for plotting.
     pts = numpy.array(tour.values())
     # print pts
@@ -197,7 +198,7 @@ def main ():
     tour = two_opt(greedy_construction(graph))
     # output tour data to .tour file
     output_tour(tour,sys.argv[1])
-    plot_graph(tour)
+    # plot_graph(tour)
     return
 
 if __name__ == '__main__':
