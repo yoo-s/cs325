@@ -8,84 +8,128 @@
     Starting from a degenerate tour consisting of the two farthest 
 cities, repeatedly choose the non-tour city with the minimum 
 distance to its nearest neighbor among the tour cities, and make 
-that city the next in the tour.
+that city the next in the tour. 2-Opt uncrosses any lines in the 
+tour until there are no more mor crossed paths, thereby optimizing 
+the tour. 2-opt uses a deque to improve the tour moving in both
+directions while accessing each next element in O(n) time.
 '''
 import sys,time,numpy
 from math import *
 from collections import OrderedDict,deque
 # import matplotlib.pyplot as plt
 
-# define a function-set to quick-peak a deque
+# define a utility function-set to quick-peak a standard deque
+# Quick Peak [Right]
 def qp (dek):
+    # if there are elements in the deque
     if dek:
+        # return the value of the next element on the right side of the deque
         var = dek.pop()
+        # without popping (deleting that element)
         dek.append(var)
         return var
+    # else return boolean false
     else:
         return False
+# Quick Peak Left
 def qpl (dek):
     if dek:
         var = dek.popleft()
         dek.appendleft(var)
+        # returns an analagous value to .qp(), but for the left side of the deque
         return var
     else:
         return False
 
+# define a data container class
 class dict_deque (object):
+    # it is initialized by calling 'dd = dict_deque()'
     def __init__(self):
+        # it stores values in a deque
         self.v = deque()
+        # while storing a dict of it's original keys for reverse lookup
         self.k = {}
+    # call 'dd = dict_deque() ; dd.mutate(old_dict)' to mutate any dict object into a new dict_deque
     def mutate(self,tour):
+        # dd.v stores a deque to traverse the graph in a 2-d plane in O(1)
         self.v = deque(tour.values())
+        # and dd.k stores a dict of all previous keys
         self.k = {}
+        # which can be accessed as an object like 'dd.k.iteritems()'' etc
         for key,value in tour.iteritems():
+            # or individually like 'dd.k[str(value)]'
             self.k[str(value)] = key
+    # Append to the right side of the dict_deque like you would any deque
     def append (self,item):
-        self.v.append(item.keys()[0])
-        self.k[str(item.keys()[0])] = item.values()[0]
+        self.v.append(item.values()[0])
+        self.k[str(item.values()[0])] = item.keys()[0]
+    # Append to left side
     def appendleft (self,item):
-        self.v.appendleft(item.keys()[0])
-        self.k[str(item.keys()[0])] = item.values()[0]
+        self.v.appendleft(item.values()[0])
+        # they dict items but should be first mutated using dd.mutate(dict)
+        self.k[str(item.values()[0])] = item.keys()[0]
+    # Pop rightmost element dict_deque, returns None if empty
     def pop (self):
-        if qp(self.v):
-            key = self.v.pop()
-            val = self.k[str(key)]
-            del self.k[str(key)]
-            return {str(key):val}
+        try:
+            # the dict_deque item is mutated into a key/value pair
+            val = self.v.popleft()
+            key = self.k[str(val)]
+            # the element is no longer available by 'key' or popping
+            del self.k[str(val)]
+            # the object is returned as a standard key/value pair
+            return {key:val}
+        except:
+            return False
+
+    # Pop leftmost element in the dict deque
     def popleft (self):
-        if qpl(self.v):
-            key = self.v.popleft()
-            val = self.k[str(key)]
-            del self.k[str(key)]
-            return {str(key):val}
+        try:
+            val = self.v.popleft()
+            key = self.k[str(val)]
+            del self.k[str(val)]
+            # the object is returned as a standard key/value pair
+            return {key:val}
+        except:
+            return False
+    # Quick Peak [Right]
     def qp (self):
+        # Checks if the deque is available to popping
         if qp(self.v):
+            # calls higher level dd.pop() to get a dict_deque item
             var = self.pop()
+            # but leaves the item in the dict_deque for later usage
             self.append(var)
             return var
         else:
+            # returns False if dict_deque is empty
             return False
+    # Quick Peak Left
     def qpl (self):
         if qpl(self.v):
             var = self.popleft()
             self.appendleft(var)
+            # analogous with dd.qp() but for the left side of the dict_deque
             return var
         else:
             return False
 
-# Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
+# Function Get_Distance returns the distance of two tuples
+# or dict_deque items where a=(x1,y1),b=(x2,y2)
 def get_distance(a,b):
+    # if the items are dict_deques, destringify the coordinates
     if isinstance(a,dict) and isinstance(b,dict):
-        if type(a.keys()) is int: a = a.keys()[1]
-        a[0],a[1] = [float(i) for i in a.keys()[0].strip('[]').split(',')]
-        b[0],b[1] = [float(i) for i in b.keys()[0].strip('[]').split(',')]
-    print 'distance: ', sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+        if type(a.values()) is list: a[0],a[1] = a.values()[0][0],a.values()[0][1]
+        if type(b.values()) is list: b[0],b[1] = b.values()[0][0],b.values()[0][1]
+    # uncomment to print distance measured to console
+    # print 'distance: ', sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
 # Function Get_Line_length returns the length of a line from u to v
 def get_line_length (tour):
     seen = []
     distance = 0
+    # works for deques, dicts, and ordered dicts
+    # if its a deque
     if isinstance(tour,deque):
         while qp(tour):
             cp = tour.pop()
@@ -93,6 +137,7 @@ def get_line_length (tour):
                 distance += get_distance(cp,qp(tour))
             seen.append(qp(tour))
         return distance
+    # if its a dict
     elif isinstance(tour,dict_deque):
         op = tour.pop()
         cp =  op
@@ -100,6 +145,7 @@ def get_line_length (tour):
             cp = tour.qp()
             distance += get_distance(cp.keys(),tour.pop().keys())
         return distance
+    # if its an OrderedDict
     elif isinstance(tour,OrderedDict):
         for node in tour:
             if len(seen) > 0:
@@ -188,7 +234,7 @@ def two_opt (tour):
         new_tour.appendleft(cur_tour.popleft())
         swpd = 0
         # while there are at least two tour cities left to check
-        while cur_tour.qp() and cur_tour.qpl():
+        while not cur_tour.qp() is cur_tour.qpl():
             right_dist = get_distance(new_tour.qp(),cur_tour.qp())
             left_dist = get_distance(new_tour.qp(),cur_tour.qpl())
             # if the two paths cross
@@ -201,16 +247,7 @@ def two_opt (tour):
             else:
                 new_tour.append(cur_tour.pop())
                 new_tour.appendleft(cur_tour.popleft())
-        if cur_tour.qp() or new_tour.qpl()==cur_tour.qpl():
-            print 'CTQP!'
-            new_tour.append(cur_tour.pop())
-        elif cur_tour.qpl() or new_tour.qp()==cur_tour.qp():
-            print 'CTQPL!'
-            new_tour.appendleft(cur_tour.popleft())
-        else:
-            print 'neither'
-            swpd = 0
-            break
+
     return new_tour
 
 # Function Output Tour finds distance and tour and prints to output file
@@ -219,29 +256,28 @@ def output_tour (tour,ofile):
         print_list = []
         seen = []
         distance = 0
+
+        # if the tour is a dict_deque...
         if isinstance(tour,dict_deque):
             quick_sum = get_distance(tour.qp(),tour.qpl()) 
             tp = tour.pop()
-            print_list += [tp.values()[0]]
-            ### NOT CALCULATING THE CORRECT DISTANCE!!!###
             while tour.qp():
-                print_list += [tour.qp().values()[0]]
-                distance += get_distance(tp,tour.pop())
-                print 'running total distance: ',distance
-                if tour.qp():
-                    tp = tour.qp()
-            print (str(int(distance + quick_sum)))
+                distance += get_distance(tp,tour.qp())
+                tp = tour.pop()
+                print_list += tp
+
+        # else if the tour is an OrderedDict
         elif isinstance(tour,OrderedDict):
             quick_sum = get_distance(tour[next(iter(tour))],tour[next(reversed(tour))])
             for node in tour:
                 print_list.append(node)
-                # print node
                 if len(seen) > 0:
                     distance += get_distance(tour[next(reversed(seen))],tour[node])
                 seen.append(node)
-        # print the total distance and new line individually -- experienced some bug
+
+        # print the total distance to output file
         output.write(str(int(distance + quick_sum))+'\n')
-        # output.write('\n')
+        # print the tour to output file
         for item in print_list:
             output.write(str(item)+'\n')
     return
@@ -249,11 +285,12 @@ def output_tour (tour,ofile):
 def plot_graph (tour):
     # Test-code to plot the tour
     # Uncomment line 16 for graph plotting (not supported on flip).
+    # needs bebugging for dict_deque
     # Assign tour keys for plotting.
-    pts = numpy.array(tour.k.keys())
+    pts = numpy.array(tour)
     print 'pts: ',pts
     # Get the indices of the hull points.
-    hull_indices = numpy.array(tour.k.values())
+    hull_indices = numpy.array(tour)
     print 'hull_indices',hull_indices
     # These are the actual points.
     hull_pts = pts[hull_indices,:]
@@ -276,19 +313,24 @@ def file_to_dict (file):
 
 # Validates input file and calls file_to_dict() to return a valid
 def validate (arg_list=[],*arg):
-    # Add validation code
+    # must have only one argument
     if len(arg_list) is 2:
         arg = arg_list[1]
+        # must be a .txt file
         if arg.lower().endswith('.txt'):
             try:
+                # attempt to create a dict
                 return file_to_dict(arg)
             except:
+                # exit if the file is of invalid format
                 print "Input file line format must be 'N X Y' for Node number, X-coordinate, and Y-coordinate."
                 exit()
             return graph
+        # exit if its not
         else:
             print "Accepts .txt files exclusively."
             exit()
+    # exit if its not
     else:
         print "Accepts 1 argument input file exclusively."
         exit()
@@ -300,13 +342,19 @@ def main ():
 
     # find the best tour we can and print the runtime.
     t0 = time.clock()
-    # tour = two_opt(greedy_construction(graph))
-    tour = greedy_construction(graph)
+
+    tour = two_opt(greedy_construction(graph))
+    # tour = greedy_construction(graph)
+
+    # print runtime to console
     print 'RUNTIME: ',(time.clock()-t0)
 
     # output tour data to .tour file
     output_tour(tour,sys.argv[1])
+
+    # plot graph using numpy (not supported on FLIP)
     # plot_graph(tour)
+
     return
 
 if __name__ == '__main__':
