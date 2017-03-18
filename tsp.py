@@ -42,11 +42,19 @@ def get_distance(a,b):
 def get_line_length (tour):
     seen = []
     distance = 0
-    for node in tour:
-        if len(seen) > 0:
-            distance += get_distance(tour[next(reversed(seen))],tour[node])
-        seen.append(node)
-    return distance
+    if isinstance(tour,deque):
+        while qp(tour):
+            cp = tour.pop()
+            if len(seen) > 0:
+                distance += get_distance(cp,qp(tour))
+            seen.append(qp(tour))
+        return distance
+    elif isinstance(tour,OrderedDict):
+        for node in tour:
+            if len(seen) > 0:
+                distance += get_distance(tour[next(reversed(seen))],tour[node])
+            seen.append(node)
+        return distance
 
 # Function Get_Tour_length returns the length of a full tour
 def get_tour_length (tour):
@@ -135,30 +143,32 @@ def greedy_construction (graph):
 # Function 2-OPT(route, i, k):
 # Takes a tour and spit out something better.
 def two_opt (tour):
-    # define a subfunction to recursively improve the tour
-    def grdy_optimize (tour,new_tour):
-        while len(tour) > 0:
-            # if distance to dest > distance to neighbor's dest
-            if get_distance(qp(new_tour),tour[next(iter(tour))]) >\
-            get_distance(qp(new_tour),tour[next(reversed(tour))]):
-                # swap dest with neighbors dest
-                new_tour.append(tour[next(reversed(tour))])
-                new_tour.appendleft(tour[next(iter(tour))])
-            else:
-                new_tour.append(tour[next(iter(tour))])
-                new_tour.appendleft(tour[next(reversed(tour))])
-            del tour[next(iter(tour))] ; del tour[next(reversed(tour))]
-        return new_tour
+    # # convert tour values to deque -- need only happen first time...
+    # tour_coords = deque()
+    tour_coords = deque(tour.values())
     # initialize a new tour
     new_tour = deque({})
-    # add the first and last cities of the old tour to the new
-    new_tour.append(tour[next(iter(tour))])
-    new_tour.appendleft(tour[next(reversed(tour))])
-    # delete the cities from the old tour
-    del tour[next(iter(tour))] ; del tour[next(reversed(tour))]
-
-    # return tour
-    return grdy_optimize(tour,new_tour);
+    swpd = 1
+    while swpd == 1:
+        # make copy of tour coords
+        cur_tour = tour_coords
+        # pop the first and last cities from the old tour to the new
+        new_tour.append(cur_tour.pop())
+        new_tour.appendleft(cur_tour.popleft())
+        swpd = 0
+        while len(cur_tour) > 0:
+            # if distance to dest > distance to neighbor's dest
+            if get_distance(qp(new_tour),qp(cur_tour)) >\
+            get_distance(qp(new_tour),qpl(cur_tour)):
+                # swap dest with neighbors dest
+                new_tour.append(cur_tour.popleft())
+                new_tour.appendleft(cur_tour.pop())
+                swpd = 1
+            else:
+                new_tour.append(cur_tour.pop())
+                new_tour.appendleft(cur_tour.popleft())
+        tour_coords = new_tour
+    return OrderedDict(new_tour)
 
 #Converts txt file to python dict of format {node:(x,y)}
 def file_to_dict (file):
