@@ -52,12 +52,20 @@ def get_line_length (tour):
 def get_tour_length (tour):
     seen = []
     distance = 0
-    op = qp(tour)
-    while qp(tour):
-        if len(seen) > 0:
-            distance += get_distance(tour.pop(),qp(tour))
-        seen.append(qp(tour))
-    return distance
+    if isinstance(tour,deque):
+        op = qp(tour)
+        while qp(tour):
+            cp = tour.pop()
+            if len(seen) > 0:
+                distance += get_distance(cp,qp(tour))
+            seen.append(qp(tour))
+        return distance + get_distance(cp,op)
+    elif isinstance(tour,OrderedDict):
+        for node in tour:
+            if len(seen) > 0:
+                distance += get_distance(tour[next(reversed(seen))],tour[node])
+            seen.append(node)
+        return distance + get_distance(tour[next(reversed(seen))],tour[node])
 
 # Greedy approximation tour construction algorithm
 # Add nodes to graph whose distance to the last tour node is minimal
@@ -141,15 +149,15 @@ def two_opt (tour):
                 new_tour.appendleft(tour[next(reversed(tour))])
             del tour[next(iter(tour))] ; del tour[next(reversed(tour))]
         return new_tour
-
     # initialize a new tour
-    new_tour = deque()
+    new_tour = deque({})
     # add the first and last cities of the old tour to the new
     new_tour.append(tour[next(iter(tour))])
     new_tour.appendleft(tour[next(reversed(tour))])
     # delete the cities from the old tour
     del tour[next(iter(tour))] ; del tour[next(reversed(tour))]
 
+    # return tour
     return grdy_optimize(tour,new_tour);
 
 #Converts txt file to python dict of format {node:(x,y)}
@@ -183,7 +191,6 @@ def validate (arg_list=[],*arg):
 def output_tour (tour,ofile):
     with open(ofile+'.tour','w+') as output:
         tour_print = list(tour)
-        print tour_print
         # print the total distance and new line individually -- experienced some bug
         output.write(str(int(get_tour_length(tour))))
         output.write('\n')
@@ -191,6 +198,7 @@ def output_tour (tour,ofile):
         for city in tour_print:
             output.write(str(city))
             output.write('\n')
+            # print city
     return
 
 def plot_graph (tour):
@@ -220,6 +228,7 @@ def main ():
     # find the best tour we can and print the runtime.
     t0 = time.clock()
     tour = two_opt(greedy_construction(graph))
+    # tour = greedy_construction(graph)
     print 'RUNTIME: ',(time.clock()-t0)
 
     # output tour data to .tour file
