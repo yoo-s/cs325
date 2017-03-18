@@ -11,26 +11,114 @@ distance to its nearest neighbor among the tour cities, and insert
 it in between the two consecutive tour cities for which such an 
 insertion causes the minimum increase in total tour length.
 '''
-
-import sys
+import sys,time,numpy
 from math import *
-from collections import OrderedDict
+from collections import OrderedDict,deque
+# import matplotlib.pyplot as plt
+
+# define a function-set to quick-peak a deque
+def qp (dek):
+    if dek:
+        var = dek.pop()
+        dek.append(var)
+        return var
+    else:
+        return False
+def qpl (dek):
+    if dek:
+        var = dek.popleft()
+        dek.appendleft(var)
+        return var
+    else:
+        return False
+
+class dict_deque (object):
+    def __init__(self):
+        self.v = deque()
+        self.k = {}
+    def mutate(self,tour):
+        self.v = deque(tour.values())
+        self.k = {}
+        for key,value in tour.iteritems():
+            self.k[str(value)] = key
+    def append (self,item):
+        self.v.append(item.keys()[0])
+        self.k[str(item.keys()[0])] = item.values()[0]
+    def appendleft (self,item):
+        self.v.appendleft(item.keys()[0])
+        self.k[str(item.keys()[0])] = item.values()[0]
+    def pop (self):
+        if qp(self.v):
+            key = self.v.pop()
+            val = self.k[str(key)]
+            del self.k[str(key)]
+            return {str(key):val}
+    def popleft (self):
+        if qpl(self.v):
+            key = self.v.popleft()
+            val = self.k[str(key)]
+            del self.k[str(key)]
+            return {str(key):val}
+    def qp (self):
+        if qp(self.v):
+            var = self.pop()
+            self.append(var)
+            return var
+        else:
+            return False
+    def qpl (self):
+        if qpl(self.v):
+            var = self.popleft()
+            self.appendleft(var)
+            return var
+        else:
+            return False
 
 # Function Get_Distance returns the distance of two tuples a=(x1,y1),b=(x2,y2)
 def get_distance(a,b):
+<<<<<<< HEAD
+=======
+    if isinstance(a,dict) and isinstance(b,dict):
+        if type(a.keys()) is int: a = a.keys()[1]
+        a[0],a[1] = [float(i) for i in a.keys()[0].strip('[]').split(',')]
+        b[0],b[1] = [float(i) for i in b.keys()[0].strip('[]').split(',')]
+    print 'distance: ', sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+>>>>>>> greedy
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
+
+# Function Get_Line_length returns the length of a line from u to v
+def get_line_length (tour):
+    seen = []
+    distance = 0
+    if isinstance(tour,deque):
+        while qp(tour):
+            cp = tour.pop()
+            if len(seen) > 0:
+                distance += get_distance(cp,qp(tour))
+            seen.append(qp(tour))
+        return distance
+    elif isinstance(tour,dict_deque):
+        op = tour.pop()
+        cp =  op
+        while tour.qp():
+            cp = tour.qp()
+            distance += get_distance(cp.keys(),tour.pop().keys())
+        return distance
+    elif isinstance(tour,OrderedDict):
+        for node in tour:
+            if len(seen) > 0:
+                distance += get_distance(tour[next(reversed(seen))],tour[node])
+            seen.append(node)
+        return distance
 
 # Greedy approximation tour construction algorithm
 # Add nodes to graph whose distance to the last tour node is minimal
 def greedy_construction (graph):
     # Step 1. Find two cities farthest from each other to create a starting tour.
-
     # initialize an ordered dict of cities
-    cities = OrderedDict()
+    tour_coords = OrderedDict()
     # initialize max distance
     max_distance = 0
-    # initialize total distance traveled
-    total_distance = 0
     # initialize keys of cities to remove from graph
     tour_a = 0; tour_b = 0
 
@@ -50,14 +138,11 @@ def greedy_construction (graph):
                 tour_a = i; tour_b = j
 
     # add the cities to the dict of cities
-    cities[tour_a] = graph[tour_a]; cities[tour_b] = graph[tour_b]
+    tour_coords[tour_a] = graph[tour_a]; tour_coords[tour_b] = graph[tour_b]
     # remove the two cities from the graph
     del graph[tour_a]; del graph[tour_b]
-    # turn dict of cities into the new starting tour
-    tour_coords = OrderedDict(cities.items())
     
     # Step 2. Repeatedly add a city from the graph with the maximum distance from the last city added to the tour, until graph is empty.
-    
     # while there are cities left in graph,
     while len(graph) > 0:
         # initialize a second ordered dict for containing a city to later put into the tour
@@ -81,18 +166,25 @@ def greedy_construction (graph):
                 tour_city = key
                 tour_coord = value
 
+<<<<<<< HEAD
         # keep a running sum of the total distance traveled
         total_distance += min_distance
     
+=======
+>>>>>>> greedy
         # add the nearest city to the city dict
         city[tour_city] = tour_coord   
-        # add neearest city to the tour
+        # add nearest city to the tour
         tour_coords.update(city)
+<<<<<<< HEAD
 
+=======
+>>>>>>> greedy
         # remove the city from the graph
-        if len(graph) is not 0:
+        if len(graph) > 0:
             del graph[tour_city]
 
+<<<<<<< HEAD
     total_distance += get_distance(tour_coords[next(iter(tour_coords))],
         tour_coords[next(reversed(tour_coords))])
     output.write(str(int(total_distance)))
@@ -126,10 +218,103 @@ def two_opt (graph):
                    
         
     return graph
+=======
+    return tour_coords
 
-# TSP - Combine farthest insertion and 2-opt.
-def tsp (graph):
-    return two_opt(greedy_construction(graph))
+# Function 2-OPT(route, i, k):
+# Takes a tour and spit out something better.
+def two_opt (tour):
+    # # convert tour values to deque -- need only happen first time...
+    new_tour = dict_deque()
+    new_tour.mutate(tour)
+    swpd = 1
+    while swpd == 1:
+        # make copy of tour coords
+        cur_tour = new_tour
+        # initialize a new tour
+        new_tour = dict_deque()
+        # pop the first and last cities from the old tour to the new
+        new_tour.append(cur_tour.pop())
+        new_tour.appendleft(cur_tour.popleft())
+        swpd = 0
+        # while there are at least two tour cities left to check
+        while cur_tour.qp() and cur_tour.qpl():
+            right_dist = get_distance(new_tour.qp(),cur_tour.qp())
+            left_dist = get_distance(new_tour.qp(),cur_tour.qpl())
+            # if the two paths cross
+            if  right_dist > left_dist:
+                # swap dest with neighbors dest
+                new_tour.append(cur_tour.popleft())
+                new_tour.appendleft(cur_tour.pop())
+                swpd = 1
+            # else leave the tour as it is.
+            else:
+                new_tour.append(cur_tour.pop())
+                new_tour.appendleft(cur_tour.popleft())
+        if cur_tour.qp() or new_tour.qpl()==cur_tour.qpl():
+            print 'CTQP!'
+            new_tour.append(cur_tour.pop())
+        elif cur_tour.qpl() or new_tour.qp()==cur_tour.qp():
+            print 'CTQPL!'
+            new_tour.appendleft(cur_tour.popleft())
+        else:
+            print 'neither'
+            swpd = 0
+            break
+    return new_tour
+>>>>>>> greedy
+
+# Function Output Tour finds distance and tour and prints to output file
+def output_tour (tour,ofile):
+    with open(ofile+'.tour','w+') as output:
+        print_list = []
+        seen = []
+        distance = 0
+        if isinstance(tour,dict_deque):
+            quick_sum = get_distance(tour.qp(),tour.qpl()) 
+            tp = tour.pop()
+            print_list += [tp.values()[0]]
+            ### NOT CALCULATING THE CORRECT DISTANCE!!!###
+            while tour.qp():
+                print_list += [tour.qp().values()[0]]
+                distance += get_distance(tp,tour.pop())
+                print 'running total distance: ',distance
+                if tour.qp():
+                    tp = tour.qp()
+            print (str(int(distance + quick_sum)))
+        elif isinstance(tour,OrderedDict):
+            quick_sum = get_distance(tour[next(iter(tour))],tour[next(reversed(tour))])
+            for node in tour:
+                print_list.append(node)
+                # print node
+                if len(seen) > 0:
+                    distance += get_distance(tour[next(reversed(seen))],tour[node])
+                seen.append(node)
+        # print the total distance and new line individually -- experienced some bug
+        output.write(str(int(distance + quick_sum))+'\n')
+        # output.write('\n')
+        for item in print_list:
+            output.write(str(item)+'\n')
+    return
+
+def plot_graph (tour):
+    # Test-code to plot the tour
+    # Uncomment line 16 for graph plotting (not supported on flip).
+    # Assign tour keys for plotting.
+    pts = numpy.array(tour.k.keys())
+    print 'pts: ',pts
+    # Get the indices of the hull points.
+    hull_indices = numpy.array(tour.k.values())
+    print 'hull_indices',hull_indices
+    # These are the actual points.
+    hull_pts = pts[hull_indices,:]
+    # set the graph configurations
+    plt.plot(pts[:, 0], pts[:, 1], 'ko', markersize=3)
+    plt.fill(hull_pts[:,0], hull_pts[:,1], fill=False, edgecolor='b')
+    # plt.xlim(0, x)
+    # plt.ylim(0, y)
+    plt.show()
+    return
 
 #Converts txt file to python dict of format {node:(x,y)}
 def file_to_dict (file):
@@ -137,7 +322,7 @@ def file_to_dict (file):
     file = open(file,'r+')
     for line in file:
         (node,x,y) = line.split()
-        graph[int(node)] = (int(x),int(y))
+        graph[int(node)] = [float(x),float(y)]
     return graph
 
 # Validates input file and calls file_to_dict() to return a valid
@@ -147,7 +332,7 @@ def validate (arg_list=[],*arg):
         arg = arg_list[1]
         if arg.lower().endswith('.txt'):
             try:
-                graph = file_to_dict(arg)
+                return file_to_dict(arg)
             except:
                 print "Input file line format must be 'N X Y' for Node number, X-coordinate, and Y-coordinate."
                 exit()
@@ -161,15 +346,20 @@ def validate (arg_list=[],*arg):
 
 # Main function
 def main ():
+    # validate the input and assign it to graph
     graph = validate(sys.argv)
-    tour = tsp(graph)
-    for key,value in tour.iteritems():
-        output.write(str(key))
-        output.write('\n')
+
+    # find the best tour we can and print the runtime.
+    t0 = time.clock()
+    # tour = two_opt(greedy_construction(graph))
+    tour = greedy_construction(graph)
+    print 'RUNTIME: ',(time.clock()-t0)
+
+    # output tour data to .tour file
+    output_tour(tour,sys.argv[1])
+    # plot_graph(tour)
     return
 
-
 if __name__ == '__main__':
-    output = open(sys.argv[1]+'.tour','w+')
     main()
     exit()
