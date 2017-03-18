@@ -84,18 +84,17 @@ def greedy_construction (graph):
         # keep a running sum of the total distance traveled
         total_distance += min_distance
     
-        # ------------------------------------
         # add the nearest city to the city dict
         city[tour_city] = tour_coord   
         # add neearest city to the tour
         tour_coords.update(city)
-        # ------------------------------------                        
 
         # remove the city from the graph
         if len(graph) is not 0:
             del graph[tour_city]
+
     total_distance += get_distance(tour_coords[next(iter(tour_coords))],
-    	tour_coords[next(reversed(tour_coords))])
+        tour_coords[next(reversed(tour_coords))])
     output.write(str(int(total_distance)))
     output.write('\n')
     return tour_coords
