@@ -50,11 +50,13 @@ class dict_deque (object):
         if qp(self.v):
             key = self.v.pop()
             val = self.k[str(key)]
+            del self.k[str(key)]
             return {str(key):val}
     def popleft (self):
         if qpl(self.v):
             key = self.v.popleft()
             val = self.k[str(key)]
+            del self.k[str(key)]
             return {str(key):val}
     def qp (self):
         if qp(self.v):
@@ -77,6 +79,7 @@ def get_distance(a,b):
         if type(a.keys()) is int: a = a.keys()[1]
         a[0],a[1] = [float(i) for i in a.keys()[0].strip('[]').split(',')]
         b[0],b[1] = [float(i) for i in b.keys()[0].strip('[]').split(',')]
+    print 'distance: ', sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
     return sqrt((b[0] - a[0])**2 + (b[1] - a[1])**2)
 
 # Function Get_Line_length returns the length of a line from u to v
@@ -185,11 +188,11 @@ def two_opt (tour):
         new_tour.appendleft(cur_tour.popleft())
         swpd = 0
         # while there are at least two tour cities left to check
-        while cur_tour.qp() or cur_tour.qpl():
+        while cur_tour.qp() and cur_tour.qpl():
             right_dist = get_distance(new_tour.qp(),cur_tour.qp())
             left_dist = get_distance(new_tour.qp(),cur_tour.qpl())
             # if the two paths cross
-            if  right_dist < left_dist:
+            if  right_dist > left_dist:
                 # swap dest with neighbors dest
                 new_tour.append(cur_tour.popleft())
                 new_tour.appendleft(cur_tour.pop())
@@ -198,18 +201,19 @@ def two_opt (tour):
             else:
                 new_tour.append(cur_tour.pop())
                 new_tour.appendleft(cur_tour.popleft())
-        if cur_tour.qp():
+        if cur_tour.qp() or new_tour.qpl()==cur_tour.qpl():
             print 'CTQP!'
             new_tour.append(cur_tour.pop())
-        elif cur_tour.qpl():
+        elif cur_tour.qpl() or new_tour.qp()==cur_tour.qp():
             print 'CTQPL!'
-            new_tour.appendleft(cur_tour.pop())
+            new_tour.appendleft(cur_tour.popleft())
         else:
             print 'neither'
             swpd = 0
             break
     return new_tour
 
+# Function Output Tour finds distance and tour and prints to output file
 def output_tour (tour,ofile):
     with open(ofile+'.tour','w+') as output:
         print_list = []
@@ -218,22 +222,26 @@ def output_tour (tour,ofile):
         if isinstance(tour,dict_deque):
             quick_sum = get_distance(tour.qp(),tour.qpl()) 
             tp = tour.pop()
+            print_list += [tp.values()[0]]
+            ### NOT CALCULATING THE CORRECT DISTANCE!!!###
             while tour.qp():
                 print_list += [tour.qp().values()[0]]
                 distance += get_distance(tp,tour.pop())
+                print 'running total distance: ',distance
                 if tour.qp():
                     tp = tour.qp()
+            print (str(int(distance + quick_sum)))
         elif isinstance(tour,OrderedDict):
             quick_sum = get_distance(tour[next(iter(tour))],tour[next(reversed(tour))])
             for node in tour:
                 print_list.append(node)
-                print node
+                # print node
                 if len(seen) > 0:
                     distance += get_distance(tour[next(reversed(seen))],tour[node])
                 seen.append(node)
         # print the total distance and new line individually -- experienced some bug
-        output.write(str(int(distance + quick_sum)))
-        output.write('\n')
+        output.write(str(int(distance + quick_sum))+'\n')
+        # output.write('\n')
         for item in print_list:
             output.write(str(item)+'\n')
     return
@@ -242,9 +250,11 @@ def plot_graph (tour):
     # Test-code to plot the tour
     # Uncomment line 16 for graph plotting (not supported on flip).
     # Assign tour keys for plotting.
-    pts = numpy.array(tour.values())
+    pts = numpy.array(tour.k.keys())
+    print 'pts: ',pts
     # Get the indices of the hull points.
-    hull_indices = numpy.array(tour.keys())
+    hull_indices = numpy.array(tour.k.values())
+    print 'hull_indices',hull_indices
     # These are the actual points.
     hull_pts = pts[hull_indices,:]
     # set the graph configurations
@@ -290,8 +300,8 @@ def main ():
 
     # find the best tour we can and print the runtime.
     t0 = time.clock()
-    tour = two_opt(greedy_construction(graph))
-    # tour = greedy_construction(graph)
+    # tour = two_opt(greedy_construction(graph))
+    tour = greedy_construction(graph)
     print 'RUNTIME: ',(time.clock()-t0)
 
     # output tour data to .tour file
