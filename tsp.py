@@ -190,13 +190,14 @@ def validate (arg_list=[],*arg):
 
 def output_tour (tour,ofile):
     with open(ofile+'.tour','w+') as output:
-        tour_print = list(tour)
         # print the total distance and new line individually -- experienced some bug
-        output.write(str(int(get_tour_length(tour))))
+        tour_len = str(int(get_tour_length(tour)))
+        output.write(tour_len)
         output.write('\n')
+        print 'TOUR LENGTH: ',tour_len
         # print out each city index
+        tour_print = list(tour)
         for city in tour_print:
-            # print city
             output.write(str(city))
             output.write('\n')
             # print city
