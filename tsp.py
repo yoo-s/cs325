@@ -61,13 +61,20 @@ class dict_deque (object):
             self.k[str(value)] = key
     # Append to the right side of the dict_deque like you would any deque
     def append (self,item):
-        self.v.append(item.values()[0])
-        self.k[str(item.values()[0])] = item.keys()[0]
+        if item:
+            self.v.append(item.values()[0])
+            self.k[str(item.values()[0])] = item.keys()[0]
+        else:
+            return False
     # Append to left side
     def appendleft (self,item):
-        self.v.appendleft(item.values()[0])
-        # they dict items but should be first mutated using dd.mutate(dict)
-        self.k[str(item.values()[0])] = item.keys()[0]
+        if item:
+            self.v.appendleft(item.values()[0])
+            # they dict items but should be first mutated using dd.mutate(dict)
+            self.k[str(item.values()[0])] = item.keys()[0]
+        else:
+            return False
+
     # Pop rightmost element dict_deque, returns None if empty
     def pop (self):
         try:
@@ -234,7 +241,7 @@ def two_opt (tour):
         new_tour.appendleft(cur_tour.popleft())
         swpd = 0
         # while there are at least two tour cities left to check
-        while not cur_tour.qp() is cur_tour.qpl():
+        while not cur_tour.qp()is False:
             right_dist = get_distance(new_tour.qp(),cur_tour.qp())
             left_dist = get_distance(new_tour.qp(),cur_tour.qpl())
             # if the two paths cross
@@ -247,7 +254,14 @@ def two_opt (tour):
             else:
                 new_tour.append(cur_tour.pop())
                 new_tour.appendleft(cur_tour.popleft())
-
+            if cur_tour.qp() or new_tour.qpl()==cur_tour.qpl():
+                new_tour.append(cur_tour.pop())
+            elif cur_tour.qpl() or new_tour.qp()==cur_tour.qp():
+                new_tour.appendleft(cur_tour.popleft())
+            # continue
+            swpd = 0# <<-- this stops it short and makes the while loop only run once
+            # that's why it seems like it's working...
+        continue
     return new_tour
 
 # Function Output Tour finds distance and tour and prints to output file
